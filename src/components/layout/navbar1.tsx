@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { ModeToggle } from "./modeToggle";
 
 interface MenuItem {
   title: string;
@@ -104,7 +105,11 @@ const Navbar1 = ({
               </NavigationMenu>
             </div>
           </div>
+
           <div className="flex gap-2">
+            <div>
+              <ModeToggle />
+            </div>
             <Button asChild variant="outline" size="sm">
               <Link href={auth.login.url} passHref>
                 {auth.login.title}
@@ -161,6 +166,9 @@ const Navbar1 = ({
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
+                    <div>
+                      <ModeToggle />
+                    </div>
                     <Button asChild variant="outline">
                       <Link href={auth.login.url} passHref>
                         {auth.login.title}
