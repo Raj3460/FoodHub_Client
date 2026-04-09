@@ -9,7 +9,7 @@ export default function CommonLayout({
 }) {
   return (
     <div>
-       <Navbar1 />
+       <Navbar1 className="sticky top-0 z-50 bg-background"/>
       {children}
     </div>
   );

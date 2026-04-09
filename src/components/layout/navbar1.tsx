@@ -150,7 +150,7 @@ const UserProfileDropdown = ({
         {/* Middle Section: Menu Items */}
         <DropdownMenuGroup>
           <DropdownMenuItem asChild className="cursor-pointer">
-            <Link href="/profile/myProfile" className="flex items-center gap-2">
+            <Link href="/account/myProfile" className="flex items-center gap-2">
               <User className="size-4" />
               <span>My Profile</span>
             </Link>
@@ -289,7 +289,7 @@ const Navbar1 = ({
   };
 
   return (
-    <section className={cn("py-4", className)}>
+    <section  className=  {cn("py-4", className)}>
       <div className="container mx-auto px-4">
         {/* Desktop Menu */}
         <nav className="hidden items-center justify-between lg:flex">
@@ -385,19 +385,19 @@ const Navbar1 = ({
                           </div>
                         </div>
                         <Button asChild variant="outline" size="sm">
-                          <Link href="/profile/myProfile" className="flex items-center gap-2">
+                          <Link href="/account/myProfile" className="flex items-center gap-2">
                             <User className="size-4" />
                             Profile
                           </Link>
                         </Button>
                         <Button asChild variant="outline" size="sm">
-                          <Link href="/orders" className="flex items-center gap-2">
+                          <Link href="/account/orders" className="flex items-center gap-2">
                             <ShoppingBag className="size-4" />
                             Orders
                           </Link>
                         </Button>
                         <Button asChild variant="outline" size="sm">
-                          <Link href="/settings" className="flex items-center gap-2">
+                          <Link href="/account/settings" className="flex items-center gap-2">
                             <Settings className="size-4" />
                             Settings
                           </Link>
