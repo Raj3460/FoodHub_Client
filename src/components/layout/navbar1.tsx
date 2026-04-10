@@ -295,16 +295,9 @@ const Navbar1 = ({
         <nav className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
             {/* Logo */}
-            <Link href={logo.url} className="flex items-center gap-2">
-              <img
-                src={logo.src}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-              />
-              <span className="text-lg font-semibold tracking-tighter">
-                {logo.title}
+             <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500 text-white">
+                F
               </span>
-            </Link>
             <div className="flex items-center">
               <NavigationMenu>
                 <NavigationMenuList>
@@ -324,11 +317,9 @@ const Navbar1 = ({
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             <Link href={logo.url} className="flex items-center gap-2">
-              <img
-                src={logo.src}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-              />
+               <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500 text-white">
+                F
+              </span>
               <span className="text-lg font-semibold tracking-tighter">
                 {logo.title}
               </span>

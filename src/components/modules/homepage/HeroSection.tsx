@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 export default function HeroSection() {
   return (
     <div>
-       <main className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+       <main className="relative overflow-hidden  from-amber-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.35),transparent_40%)]" />
       <div className="pointer-events-none absolute right-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-amber-300/20 blur-3xl dark:bg-sky-500/10" />
 
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl flex-col px-6 py-20 lg:px-8 lg:py-24">
         <div className="grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr]">
           <section className="max-w-2xl">
-            <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground">
+            <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary dark:bg-primary/15 ">
               Fresh meals, local kitchens
             </span>
             <h1 className="mt-6 text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">

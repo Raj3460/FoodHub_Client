@@ -1,63 +1,15 @@
-import { Button } from "@/components/ui/button";
+//src/components/modules/homepage/CategorySection.tsx
+ 
 
-// app/components/CategorySection.tsx
-export default function CategorySection() {
-  const categories = [
-    {
-      id: "1",
-      name: "Beverages",
-      slug: "beverages",
-      description: "Refreshing drinks and beverages",
-      icon: "🥤",
-      image: "/beverages.jpg",
-      isActive: true,
-    },
-    {
-      id: "2",
-      name: "Desserts",
-      slug: "desserts",
-      description: "Sweet treats and desserts",
-      icon: "🍰",
-      image: "/desserts.jpg",
-      isActive: true,
-    },
-    {
-      id: "3",
-      name: "Fast Food",
-      slug: "fast-food",
-      description: "Quick and delicious fast food",
-      icon: "🍔",
-      image: "/fast-food.jpg",
-      isActive: true,
-    },
-    {
-      id: "4",
-      name: "Bengali",
-      slug: "bengali",
-      description: "Traditional Bengali cuisine",
-      icon: "🍛",
-      image: "/bengali.jpg",
-      isActive: true,
-    },
-    {
-      id: "5",
-      name: "Chinese",
-      slug: "chinese",
-      description: "Authentic Chinese dishes",
-      icon: "🥢",
-      image: "/chinese.jpg",
-      isActive: true,
-    },
-    {
-      id: "6",
-      name: "Indian",
-      slug: "indian",
-      description: "Spicy and flavorful Indian food",
-      icon: "🍛",
-      image: "/indian.jpg",
-      isActive: true,
-    },
-  ];
+
+import { Button } from "@/components/ui/button";
+import { CategoryService } from "@/services/category.service";
+import { Category } from "@/types";
+
+
+export default async function CategorySection() {
+  const categories = await CategoryService.getCategories();
+  // console.log("this is categories|: ", categories);
 
   return (
     <section className="bg-white py-16 dark:bg-slate-950">
@@ -72,7 +24,7 @@ export default function CategorySection() {
         </div>
 
         <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 xl:grid-cols-6">
-          {categories.map((category) => (
+          {categories.map((category: Category) => (
             <div
               key={category.id}
               className="group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-white to-slate-50 p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 dark:from-slate-900 dark:to-slate-800"
