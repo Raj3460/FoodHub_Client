@@ -30,3 +30,43 @@ export interface Meal {
     icon?: string;
   };
 }
+
+
+export interface MealDetails {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  discountPrice?: number;
+  images: string[];
+  thumbnail?: string;
+  rating: number;
+  totalReviews: number;
+  preparationTime?: number;
+  calories?: number;
+  isVegetarian: boolean;
+  isSpicy: boolean;
+  isAvailable: boolean;
+  ingredients: string[];
+  provider: {
+    id: string;
+    restaurantName: string;
+    area?: string;
+    city?: string;
+    address?: string;
+    deliveryFee: number;
+    minOrderAmount: number;
+    rating: number;
+    isOpen: boolean;
+  };
+  category: {
+    name: string;
+  };
+  reviews: {
+    id: string;
+    rating: number;
+    comment: string;
+    customerName: string;
+    createdAt: string;
+  }[];
+}

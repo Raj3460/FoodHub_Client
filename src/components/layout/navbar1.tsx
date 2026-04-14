@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, User, ShoppingBag, Heart, Gift, HelpCircle, Settings, LogOut } from "lucide-react";
+import { Menu, User, ShoppingBag, Heart, Gift, HelpCircle, Settings, LogOut, ShoppingCart } from "lucide-react";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,13 +25,13 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ModeToggle } from "./modeToggle";
 import { authClient } from "@/lib/auth-client";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useCartStore } from "@/stores/cartStore";
+import { useEffect, useState } from "react";
 
 interface MenuItem {
   title: string;
@@ -72,11 +72,7 @@ interface UserProfileDropdownProps {
   onLogout: () => void;
 }
 
-const UserProfileDropdown = ({
-  user,
-  onLogout,
-}: UserProfileDropdownProps) => {
-  const router = useRouter();
+const UserProfileDropdown = ({ user, onLogout }: UserProfileDropdownProps) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogoutClick = () => {
@@ -107,10 +103,7 @@ const UserProfileDropdown = ({
             Are you sure you want to logout?
           </p>
           <div className="mt-6 flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowLogoutConfirm(false)}
-            >
+            <Button variant="outline" onClick={() => setShowLogoutConfirm(false)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={confirmLogout}>
@@ -125,12 +118,8 @@ const UserProfileDropdown = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full hover:bg-accent"
-        >
-          <Avatar size="default">
+        <Button variant="ghost" size="icon" className="rounded-full hover:bg-accent">
+          <Avatar className="h-8 w-8">
             <AvatarImage src="" alt={user.name} />
             <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
               {getInitials(user.name)}
@@ -139,15 +128,11 @@ const UserProfileDropdown = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        {/* Top Section: User Info */}
         <div className="px-2 py-3">
           <p className="font-semibold text-foreground">{user.name || "User"}</p>
           <p className="text-xs text-muted-foreground">{user.email || "No email"}</p>
         </div>
-
         <DropdownMenuSeparator />
-
-        {/* Middle Section: Menu Items */}
         <DropdownMenuGroup>
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href="/account/myProfile" className="flex items-center gap-2">
@@ -180,10 +165,7 @@ const UserProfileDropdown = ({
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-
         <DropdownMenuSeparator />
-
-        {/* Bottom Section: Settings & Logout */}
         <DropdownMenuGroup>
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href="/settings" className="flex items-center gap-2">
@@ -192,9 +174,8 @@ const UserProfileDropdown = ({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
-            variant="destructive"
             onClick={handleLogoutClick}
-            className="cursor-pointer flex items-center gap-2"
+            className="cursor-pointer flex items-center gap-2 text-red-600 focus:text-red-600"
           >
             <LogOut className="size-4" />
             <span>Logout</span>
@@ -224,27 +205,23 @@ const Navbar1 = ({
   className,
 }: Navbar1Props) => {
   const router = useRouter();
-  const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { items, fetchCart, getTotalItems, clearCart } = useCartStore();
+  const totalItems = getTotalItems();
 
+  // ✅ Better Auth's built-in hook - automatically updates UI after login/logout
+  const { data: session, isPending } = authClient.useSession();
+
+  // ✅ Fetch cart when user logs in or component mounts
   useEffect(() => {
-    const getSession = async () => {
-      try {
-        const { data } = await authClient.getSession();
-        setSession(data);
-      } catch (error) {
-        setSession(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getSession();
-  }, []);
+    if (session?.user) {
+      fetchCart();
+    }
+  }, [session?.user, fetchCart]);
 
   const handleLogout = async () => {
     try {
       await authClient.signOut();
-      setSession(null);
+      clearCart();
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -252,7 +229,7 @@ const Navbar1 = ({
   };
 
   const renderAuthButtons = () => {
-    if (loading) {
+    if (isPending) {
       return (
         <div className="flex gap-2">
           <Button variant="outline" size="sm" disabled>
@@ -289,15 +266,17 @@ const Navbar1 = ({
   };
 
   return (
-    <section  className=  {cn("py-4", className)}>
+    <section className={cn("py-4", className)}>
       <div className="container mx-auto px-4">
         {/* Desktop Menu */}
         <nav className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
-            {/* Logo */}
-             <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500 text-white">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500 text-white font-bold text-lg">
                 F
               </span>
+              <span className="text-lg font-semibold tracking-tighter">{logo.title}</span>
+            </Link>
             <div className="flex items-center">
               <NavigationMenu>
                 <NavigationMenuList>
@@ -307,8 +286,18 @@ const Navbar1 = ({
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <ModeToggle />
+            <Link href="/cart" className="relative">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
+                    {totalItems}
+                  </span>
+                )}
+              </Button>
+            </Link>
             {renderAuthButtons()}
           </div>
         </nav>
@@ -316,102 +305,106 @@ const Navbar1 = ({
         {/* Mobile Menu */}
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
-            <Link href={logo.url} className="flex items-center gap-2">
-               <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500 text-white">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500 text-white font-bold text-lg">
                 F
               </span>
-              <span className="text-lg font-semibold tracking-tighter">
-                {logo.title}
-              </span>
+              <span className="text-lg font-semibold tracking-tighter">{logo.title}</span>
             </Link>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
+            <div className="flex items-center gap-2">
+              <Link href="/cart" className="relative">
+                <Button variant="ghost" size="icon">
+                  <ShoppingCart className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
+                      {totalItems}
+                    </span>
+                  )}
                 </Button>
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <Link href={logo.url} className="flex items-center gap-2">
-                      <img
-                        src={logo.src}
-                        className="max-h-8 dark:invert"
-                        alt={logo.alt}
-                      />
-                      <span className="text-lg font-semibold tracking-tighter">
-                        {logo.title}
-                      </span>
-                    </Link>
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-6 p-4">
-                  <Accordion type="single" collapsible className="flex w-full flex-col gap-4">
-                    {menu.map((item) => renderMobileMenuItem(item))}
-                  </Accordion>
-
-                  <div className="flex flex-col gap-3">
-                    <ModeToggle />
-                    {session?.user ? (
-                      <>
-                        <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                          <Avatar size="sm">
-                            <AvatarImage src="" alt={session.user.name} />
-                            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-                              {session.user.name
-                                ?.split(" ")
-                                .map((n: string) => n[0])
-                                .join("")
-                                .toUpperCase()
-                                .slice(0, 2) || "U"}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-foreground truncate">
-                              {session.user.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {session.user.email}
-                            </p>
+              </Link>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="size-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>
+                      <Link href="/" className="flex items-center gap-2">
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500 text-white font-bold text-lg">
+                          F
+                        </span>
+                        <span className="text-lg font-semibold tracking-tighter">
+                          {logo.title}
+                        </span>
+                      </Link>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-6 p-4">
+                    <div className="flex flex-col gap-3">
+                      {menu.map((item) => (
+                        <Link key={item.title} href={item.url} className="text-md font-semibold py-2">
+                          {item.title}
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <ModeToggle />
+                      {session?.user ? (
+                        <>
+                          <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src="" alt={session.user.name} />
+                              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                                {session.user.name
+                                  ?.split(" ")
+                                  .map((n: string) => n[0])
+                                  .join("")
+                                  .toUpperCase()
+                                  .slice(0, 2) || "U"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-foreground truncate">
+                                {session.user.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {session.user.email}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <Button asChild variant="outline" size="sm">
-                          <Link href="/account/myProfile" className="flex items-center gap-2">
-                            <User className="size-4" />
-                            Profile
-                          </Link>
-                        </Button>
-                        <Button asChild variant="outline" size="sm">
-                          <Link href="/account/orders" className="flex items-center gap-2">
-                            <ShoppingBag className="size-4" />
-                            Orders
-                          </Link>
-                        </Button>
-                        <Button asChild variant="outline" size="sm">
-                          <Link href="/account/settings" className="flex items-center gap-2">
-                            <Settings className="size-4" />
-                            Settings
-                          </Link>
-                        </Button>
-                        <Button onClick={handleLogout} variant="destructive" size="sm" className="flex items-center gap-2">
-                          <LogOut className="size-4" />
-                          Logout
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button asChild variant="outline">
-                          <Link href={auth.login.url}>{auth.login.title}</Link>
-                        </Button>
-                        <Button asChild>
-                          <Link href={auth.signup.url}>{auth.signup.title}</Link>
-                        </Button>
-                      </>
-                    )}
+                          <Button asChild variant="outline" size="sm">
+                            <Link href="/account/myProfile" className="flex items-center gap-2">
+                              <User className="size-4" />
+                              Profile
+                            </Link>
+                          </Button>
+                          <Button asChild variant="outline" size="sm">
+                            <Link href="/orders" className="flex items-center gap-2">
+                              <ShoppingBag className="size-4" />
+                              Orders
+                            </Link>
+                          </Button>
+                          <Button onClick={handleLogout} variant="destructive" size="sm">
+                            Logout
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button asChild variant="outline">
+                            <Link href={auth.login.url}>{auth.login.title}</Link>
+                          </Button>
+                          <Button asChild>
+                            <Link href={auth.signup.url}>{auth.signup.title}</Link>
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
@@ -431,18 +424,6 @@ const renderMenuItem = (item: MenuItem) => {
         </Link>
       </NavigationMenuLink>
     </NavigationMenuItem>
-  );
-};
-
-const renderMobileMenuItem = (item: MenuItem) => {
-  return (
-    <Link
-      key={item.title}
-      href={item.url}
-      className="text-md font-semibold"
-    >
-      {item.title}
-    </Link>
   );
 };
 

@@ -63,7 +63,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
             router.push("/admin/dashboard");
             break;
           case "PROVIDER":
-            router.push("/provider/dashboard");
+            router.push("/");
             break;
           default:
             router.push("/");
