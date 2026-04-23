@@ -31,11 +31,42 @@ export const useCartStore = create<CartStore>((set, get) => ({
   isLoading: false,
 
   fetchCart: async () => {
+    // Check if user is authenticated first
+    try {
+      const sessionResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/get-session`, {
+        credentials: "include",
+      });
+      if (!sessionResponse.ok) {
+        // User is not authenticated, clear cart and return
+        set({ items: [], isLoading: false });
+        return;
+      }
+      const session = await sessionResponse.json();
+      if (!session?.user) {
+        // No valid session, clear cart and return
+        set({ items: [], isLoading: false });
+        return;
+      }
+    } catch (error) {
+      // If we can't check session, assume not authenticated
+      console.warn("Could not verify authentication status:", error);
+      set({ items: [], isLoading: false });
+      return;
+    }
+
     set({ isLoading: true });
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
         credentials: "include",
       });
+      if (!res.ok) {
+        if (res.status === 403) {
+          // User not authorized, clear cart
+          set({ items: [], isLoading: false });
+          return;
+        }
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
       if (data.success) {
         const items = data.data?.items?.map((item: any) => ({
@@ -68,6 +99,10 @@ export const useCartStore = create<CartStore>((set, get) => ({
         }),
         credentials: "include",
       });
+      if (res.status === 403) {
+        console.warn("User not authenticated, cannot add item to cart");
+        return;
+      }
       if (res.ok) {
         await get().fetchCart();
       }
@@ -80,13 +115,19 @@ export const useCartStore = create<CartStore>((set, get) => ({
     try {
       const item = get().items.find((i) => i.mealId === mealId);
       if (!item) return;
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity }),
         credentials: "include",
       });
-      await get().fetchCart();
+      if (res.status === 403) {
+        console.warn("User not authenticated, cannot update cart item");
+        return;
+      }
+      if (res.ok) {
+        await get().fetchCart();
+      }
     } catch (error) {
       console.error("Failed to update quantity:", error);
     }
@@ -96,11 +137,17 @@ export const useCartStore = create<CartStore>((set, get) => ({
     try {
       const item = get().items.find((i) => i.mealId === mealId);
       if (!item) return;
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
         method: "DELETE",
         credentials: "include",
       });
-      await get().fetchCart();
+      if (res.status === 403) {
+        console.warn("User not authenticated, cannot remove cart item");
+        return;
+      }
+      if (res.ok) {
+        await get().fetchCart();
+      }
     } catch (error) {
       console.error("Failed to remove item:", error);
     }
@@ -108,11 +155,17 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   clearCart: async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
         method: "DELETE",
         credentials: "include",
       });
-      set({ items: [] });
+      if (res.status === 403) {
+        console.warn("User not authenticated, cannot clear cart");
+        return;
+      }
+      if (res.ok) {
+        set({ items: [] });
+      }
     } catch (error) {
       console.error("Failed to clear cart:", error);
     }

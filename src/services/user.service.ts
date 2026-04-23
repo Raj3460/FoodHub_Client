@@ -17,6 +17,10 @@ export const userService = {
         cache: "no-store",
       });
 
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const session = await res.json();
 
       if (session === null) {
