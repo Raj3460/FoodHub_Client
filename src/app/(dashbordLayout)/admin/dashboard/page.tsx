@@ -39,7 +39,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here's your business overview.</p>
+        <p className="text-muted-foreground">Welcome back! Here's your business dashboard overview.</p>
       </div>
 
       <DashboardStats stats={stats} />
