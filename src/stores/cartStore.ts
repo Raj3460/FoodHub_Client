@@ -1,5 +1,8 @@
 import { create } from "zustand";
 
+import { env } from "@/env";
+import { authClient } from "@/lib/auth-client";
+
 export interface CartItem {
   id: string;
   mealId: string;
@@ -33,15 +36,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
   fetchCart: async () => {
     // Check if user is authenticated first
     try {
-      const sessionResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/get-session`, {
-        credentials: "include",
-      });
-      if (!sessionResponse.ok) {
-        // User is not authenticated, clear cart and return
-        set({ items: [], isLoading: false });
-        return;
-      }
-      const session = await sessionResponse.json();
+      const { data: session } = await authClient.getSession();
       if (!session?.user) {
         // No valid session, clear cart and return
         set({ items: [], isLoading: false });
@@ -56,7 +51,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
     set({ isLoading: true });
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -90,7 +85,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   addItem: async (item) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -115,7 +110,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
     try {
       const item = get().items.find((i) => i.mealId === mealId);
       if (!item) return;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity }),
@@ -137,7 +132,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
     try {
       const item = get().items.find((i) => i.mealId === mealId);
       if (!item) return;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -155,7 +150,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   clearCart: async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart`, {
         method: "DELETE",
         credentials: "include",
       });

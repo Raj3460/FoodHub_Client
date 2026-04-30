@@ -11,10 +11,7 @@ import { env } from "@/env"
 import { createAuthClient } from "better-auth/react"
 
 export const authClient = createAuthClient({
-  baseURL: env.NEXT_PUBLIC_API_URL || "http://localhost:5000",
-  fetchOptions: {
-    credentials: "include",
-  },
-})
+  baseURL: (env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + "/api/auth",
+  fetchOptions: { credentials: "include" },
+});
 
-// export const { signIn, signUp, signOut, useSession } = authClient;
