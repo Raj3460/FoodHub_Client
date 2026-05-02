@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import { ModeToggle } from "../modeToggle";
 import { authClient } from "@/lib/auth-client";
 import { useCartStore } from "@/stores/cartStore";
@@ -17,7 +18,11 @@ const menuItems = [
   { title: "Dashboard", url: "/dashboard" },
 ];
 
-export function Navbar1() {
+interface Navbar1Props {
+  className?: string;
+}
+
+export function Navbar1({ className }: Navbar1Props) {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { fetchCart, getTotalItems, clearCart } = useCartStore();
@@ -35,7 +40,7 @@ export function Navbar1() {
   };
 
   return (
-    <section className="py-4">
+    <section className={cn("py-4", className)}>
       <div className="container mx-auto px-4">
         {/* Desktop */}
         <div className="hidden items-center justify-between lg:flex">
@@ -63,7 +68,6 @@ export function Navbar1() {
             <div className="flex items-center gap-2">
               <CartIcon itemCount={totalItems} />
               <MobileMenu logoTitle="FoodHub" open={mobileOpen} onOpenChange={setMobileOpen}>
-                {/* মেনু লিংক */}
                 <div className="flex flex-col gap-3">
                   {menuItems.map((item) => (
                     <button
@@ -78,7 +82,6 @@ export function Navbar1() {
                     </button>
                   ))}
                 </div>
-                {/* থিম টগল ও অথ বাটন */}
                 <div className="flex flex-col gap-3">
                   <ModeToggle />
                   <AuthButtons
