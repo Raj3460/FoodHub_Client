@@ -6,7 +6,7 @@ const API_BASE_URL = env.NEXT_PUBLIC_API_URL;
 export const CategoryService = {
   getCategories: async function () {
     try {
-      const res = await fetch(`${API_BASE_URL}/categories`, {
+      const res = await fetch(`${API_BASE_URL}/api/categories`, {
         cache: "no-store",
       });
 

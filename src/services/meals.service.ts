@@ -11,7 +11,7 @@ export const mealsService = {
   fetchPopularMeals: async (limit: number = 6): Promise<Meal[]> => {
     try {
       const res = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/meals?sort=popular&limit=${limit}`,
+        `${env.NEXT_PUBLIC_API_URL}/api/meals?sort=popular&limit=${limit}`,
         { cache: "no-store" }
       );
 
@@ -55,7 +55,7 @@ export const mealsService = {
       if (filters.minRating) params.append("minRating", filters.minRating.toString());
       if (filters.sort) params.append("sort", filters.sort);
 
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/meals?${params.toString()}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/meals?${params.toString()}`, {
         cache: "no-store",
       });
       if (!res.ok) throw new Error("Failed to fetch meals");
@@ -76,7 +76,7 @@ export const mealsService = {
     }
 
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/meals/${encodeURIComponent(id)}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/meals/${encodeURIComponent(id)}`, {
         cache: "no-store",
       });
 

@@ -51,7 +51,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
     set({ isLoading: true });
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -85,7 +85,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   addItem: async (item) => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -110,7 +110,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
     try {
       const item = get().items.find((i) => i.mealId === mealId);
       if (!item) return;
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart/${item.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity }),
@@ -132,7 +132,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
     try {
       const item = get().items.find((i) => i.mealId === mealId);
       if (!item) return;
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart/${item.id}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart/${item.id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -150,7 +150,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   clearCart: async () => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/cart`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart`, {
         method: "DELETE",
         credentials: "include",
       });

@@ -94,7 +94,7 @@ export default function OrderDetailsPage() {
   const fetchOrder = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/my/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/my/${id}`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -118,7 +118,7 @@ export default function OrderDetailsPage() {
 
     setIsCancelling(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/my/${id}/cancel`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/my/${id}/cancel`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: "Cancelled by customer" }),

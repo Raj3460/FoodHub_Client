@@ -1,6 +1,6 @@
 
 
-import { Navbar1 } from "@/components/layout/navbar1";
+import { Navbar1 } from "@/components/layout/Navbar_Layout/navbar1";
 
 export default function CommonLayout({
   children,

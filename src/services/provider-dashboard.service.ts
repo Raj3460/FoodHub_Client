@@ -31,7 +31,7 @@ export interface Order {
 export const providerDashboardService = {
   getStats: async (): Promise<ProviderStats> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/providers/stats`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/providers/stats`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -56,7 +56,7 @@ export const providerDashboardService = {
 
   getMeals: async (): Promise<Meal[]> => {
     try {
-     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/providers/meals`, {
+     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/providers/meals`, {
     credentials: "include",
   });
   const data = await res.json();
@@ -71,7 +71,7 @@ export const providerDashboardService = {
 
   getOrders: async (): Promise<Order[]> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/orders/provider`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/orders/provider`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -84,7 +84,7 @@ export const providerDashboardService = {
 
   updateOrderStatus: async (orderId: string, status: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/orders/provider/${orderId}/status`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/orders/provider/${orderId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

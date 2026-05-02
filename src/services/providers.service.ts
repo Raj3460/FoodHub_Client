@@ -7,7 +7,7 @@ export const featuredProviderService = {
   getAllProvidersWhereFeaturedIsTrue: async () => {
     try {
       const res = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/providers?isFeatured=true`,
+        `${env.NEXT_PUBLIC_API_URL}/api/providers?isFeatured=true`,
         {
           cache: "no-store",
         },

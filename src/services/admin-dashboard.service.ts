@@ -52,7 +52,7 @@ export const adminDashboardService = {
   // Dashboard Stats
   getStats: async (): Promise<DashboardStats> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/admin/stats`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/stats`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -94,7 +94,7 @@ export const adminDashboardService = {
   // Users Management
   getUsers: async (): Promise<User[]> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/admin/users`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/users`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -110,7 +110,7 @@ export const adminDashboardService = {
 
   updateUserStatus: async (userId: string, status: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/admin/users/${userId}/status`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/users/${userId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -126,7 +126,7 @@ export const adminDashboardService = {
   // Providers Management
   getProviders: async (): Promise<Provider[]> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/admin/providers`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/providers`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -142,7 +142,7 @@ export const adminDashboardService = {
 
   approveProvider: async (providerId: string, isApproved: boolean): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/admin/providers/${providerId}/approve`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/providers/${providerId}/approve`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isApproved }),
@@ -157,7 +157,7 @@ export const adminDashboardService = {
 
   toggleFeatured: async (providerId: string, isFeatured: boolean): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/admin/providers/${providerId}/featured`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/providers/${providerId}/featured`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isFeatured }),
@@ -173,7 +173,7 @@ export const adminDashboardService = {
   // Orders Management
   getOrders: async (): Promise<Order[]> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/admin/orders`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/orders`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -190,7 +190,7 @@ export const adminDashboardService = {
   // Categories Management
   getCategories: async (): Promise<Category[]> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/categories`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/categories`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -206,7 +206,7 @@ export const adminDashboardService = {
 
   createCategory: async (data: { name: string; slug: string }): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/categories`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -221,7 +221,7 @@ export const adminDashboardService = {
 
   updateCategory: async (id: string, data: { name: string; slug: string }): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/categories/${id}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/categories/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -236,7 +236,7 @@ export const adminDashboardService = {
 
   deleteCategory: async (id: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/categories/${id}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/categories/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
