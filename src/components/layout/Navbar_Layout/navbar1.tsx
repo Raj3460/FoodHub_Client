@@ -11,12 +11,7 @@ import { DesktopMenu } from "./DesktopMenu";
 import { MobileMenu } from "./MobileMenu";
 import { CartIcon } from "./CartIcon";
 import { AuthButtons } from "./AuthButtons";
-
-const menuItems = [
-  { title: "Home", url: "/" },
-  { title: "Meals", url: "/meals" },
-  { title: "Dashboard", url: "/dashboard" },
-];
+import { CustomUser } from "@/types/role.types";
 
 interface Navbar1Props {
   className?: string;
@@ -39,10 +34,30 @@ export function Navbar1({ className }: Navbar1Props) {
     router.push("/login");
   };
 
+  // ✅ Role extraction using CustomUser (TypeScript safe)
+  const user = session?.user as CustomUser | undefined;
+  const userRole = user?.role; // "ADMIN" | "PROVIDER" | "CUSTOMER"
+
+  // ✅ Dynamic menu: Dashboard only for ADMIN or PROVIDER
+  const getMenuItems = () => {
+    const items = [
+      { title: "Home", url: "/" },
+      { title: "Meals", url: "/meals" },
+    ];
+    if (userRole === "ADMIN") {
+      items.push({ title: "Dashboard", url: "/admin/dashboard" });
+    } else if (userRole === "PROVIDER") {
+      items.push({ title: "Dashboard", url: "/provider/dashboard" });
+    }
+    // For CUSTOMER or not logged in – no Dashboard link
+    return items;
+  };
+  const menuItems = getMenuItems();
+
   return (
     <section className={cn("py-4", className)}>
       <div className="container mx-auto px-4">
-        {/* Desktop */}
+        {/* Desktop menu */}
         <div className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
             <Logo title="FoodHub" />
@@ -61,13 +76,17 @@ export function Navbar1({ className }: Navbar1Props) {
           </div>
         </div>
 
-        {/* Mobile */}
+        {/* Mobile menu */}
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             <Logo title="FoodHub" />
             <div className="flex items-center gap-2">
               <CartIcon itemCount={totalItems} />
-              <MobileMenu logoTitle="FoodHub" open={mobileOpen} onOpenChange={setMobileOpen}>
+              <MobileMenu
+                logoTitle="FoodHub"
+                open={mobileOpen}
+                onOpenChange={setMobileOpen}
+              >
                 <div className="flex flex-col gap-3">
                   {menuItems.map((item) => (
                     <button

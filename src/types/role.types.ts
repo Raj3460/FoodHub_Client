@@ -1,3 +1,5 @@
+// src/types/role.types.ts
+
 import { User as BetterAuthUser } from "better-auth";
 
 export interface CustomUser extends BetterAuthUser {
@@ -5,3 +7,4 @@ export interface CustomUser extends BetterAuthUser {
   phone?: string | null;
   status?: string | null;
 }
+

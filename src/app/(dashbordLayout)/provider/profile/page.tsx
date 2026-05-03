@@ -24,7 +24,7 @@ export default function ProviderProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/providers/my/profile`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/providers/my/profile`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -42,7 +42,7 @@ export default function ProviderProfilePage() {
 
   const handleSubmit = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/providers/my/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/providers/my/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile),
