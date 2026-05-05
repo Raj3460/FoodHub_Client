@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // app/components/HeroSection.tsx
 export default function HeroSection() {
@@ -22,10 +23,11 @@ export default function HeroSection() {
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Button className="min-w-[12rem] px-6 py-3" size="lg">
-                Order now
+              
+                  <Link href="/meals">Order now</Link>
               </Button>
               <Button variant="outline" className="min-w-[12rem] px-6 py-3" size="lg">
-                Explore menu
+              <Link href="/meals">Explore menu</Link>
               </Button>
             </div>
             <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3">

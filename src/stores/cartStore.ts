@@ -12,6 +12,7 @@ export interface CartItem {
   thumbnail?: string;
   providerId?: string;
   providerName?: string;
+  
 }
 
 interface CartStore {

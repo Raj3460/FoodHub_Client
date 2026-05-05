@@ -17,8 +17,8 @@ export default async function HomePage() {
     <div>
       <HeroSection />
       <CategorySection />
-      <FeaturedProvidersSection></FeaturedProvidersSection>
       <PopularMealsSection />
+      <FeaturedProvidersSection></FeaturedProvidersSection>  
       <Footer></Footer>
     </div>
   );

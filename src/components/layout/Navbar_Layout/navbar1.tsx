@@ -65,7 +65,8 @@ export function Navbar1({ className }: Navbar1Props) {
           </div>
           <div className="flex items-center gap-2">
             <ModeToggle />
-            <CartIcon itemCount={totalItems} />
+            {/* Show cart icon only when user is logged in */}
+            {session?.user && <CartIcon itemCount={totalItems} />}
             <AuthButtons
               session={session}
               isPending={isPending}
@@ -81,7 +82,8 @@ export function Navbar1({ className }: Navbar1Props) {
           <div className="flex items-center justify-between">
             <Logo title="FoodHub" />
             <div className="flex items-center gap-2">
-              <CartIcon itemCount={totalItems} />
+              {/* Show cart icon only when user is logged in */}
+              {session?.user && <CartIcon itemCount={totalItems} />}
               <MobileMenu
                 logoTitle="FoodHub"
                 open={mobileOpen}

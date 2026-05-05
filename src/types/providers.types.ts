@@ -1,14 +1,25 @@
- export interface Provider {
+export type Provider = {
   id: string;
   restaurantName: string;
-  logo?: string;
-  coverImage?: string;
-  rating: number;
-  deliveryTimeMin?: number;
-  deliveryTimeMax?: number;
+  slug?: string;
+  logo?: string | null;
+  coverImage?: string | null;
+  description?: string | null;
+  area?: string | null;
+  city?: string | null;
+  rating?: number;
   deliveryFee: number;
-  minOrderAmount: number;
-  city?: string;
-  area?: string;
-  isOpen: boolean;
-}
+  deliveryTimeMin?: number | null;
+  deliveryTimeMax?: number | null;
+  minOrderAmount?: number | null;
+  isOpen?: boolean;
+  isFeatured?: boolean;
+
+  // ✅ এই দুটো add করো
+  cuisineType?: string[];
+  totalReviews?: number;
+
+  _count?: {
+    meals: number;
+  };
+};

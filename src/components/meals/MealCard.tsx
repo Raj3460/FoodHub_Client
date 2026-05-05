@@ -1,72 +1,150 @@
-
-
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Star, Heart, ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { Star, Clock3, Flame } from "lucide-react";
 import { Meal } from "@/types";
-
+import { useCartStore } from "@/stores/cartStore";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 export function MealCard({ meal }: { meal: Meal }) {
-  const finalPrice = meal.discountPrice ?? meal.price;
-  const originalPrice = meal.discountPrice ? meal.price : null;
+  const router = useRouter();
+  const { addItem } = useCartStore();
+   const { data: session } = authClient.useSession();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+     // ✅ Login check
+        if (!session?.user) {
+          toast.error("Please login to add items to cart", {
+            duration: 3000,
+            action: {
+              label: "Login →",
+              onClick: () => router.push("/login"),
+            },
+          });
+          return;
+        }
+
+
+    addItem({
+      id: meal.id,
+      mealId: meal.id,
+      name: meal.name,
+      price: meal.discountPrice ?? meal.price,
+      quantity: 1,
+      thumbnail: meal.thumbnail || "",
+      providerId: meal.providerId,
+      providerName: meal.provider?.restaurantName || "",
+    });
+    toast.success(`${meal.name} added to cart!`, { duration: 2000 });
+  };
+  
 
   return (
-    <div className="group relative rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
-      <button className="absolute right-3 top-3 z-10 rounded-full bg-white/80 p-1.5 backdrop-blur-sm">
-        <Heart className="h-4 w-4 text-gray-600 hover:text-red-500" />
-      </button>
-
-      {meal.id ? (
-        <Link href={`/meals/${meal.id}`}>
-          <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-            {meal.thumbnail ? (
-              <Image src={meal.thumbnail} alt={meal.name} fill className="object-cover" />
-            ) : (
-              <div className="flex h-full items-center justify-center text-4xl font-bold text-gray-400">
-                {meal.name.charAt(0)}
-              </div>
-            )}
+    <article
+      onClick={() => router.push(`/meals/${meal.id}`)}
+      className="group cursor-pointer rounded-2xl overflow-hidden border border-border bg-card hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
+    >
+      {/* Image */}
+      <div className="relative h-44 overflow-hidden bg-muted">
+        {meal.thumbnail ? (
+          <Image
+            src={meal.thumbnail}
+            alt={meal.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-5xl font-bold text-muted-foreground">
+            {meal.name.charAt(0)}
           </div>
-        </Link>
-      ) : (
-        <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-          {meal.thumbnail ? (
-            <Image src={meal.thumbnail} alt={meal.name} fill className="object-cover" />
-          ) : (
-            <div className="flex h-full items-center justify-center text-4xl font-bold text-gray-400">
-              {meal.name.charAt(0)}
-            </div>
+        )}
+
+        {/* Badges */}
+        <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
+          {meal.discountPrice && meal.discountPrice < meal.price && (
+            <span className="bg-orange-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+              {Math.round((1 - meal.discountPrice / meal.price) * 100)}% off
+            </span>
+          )}
+          {meal.isSpicy && (
+            <span className="bg-red-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+              🌶 Spicy
+            </span>
+          )}
+          {meal.isVegetarian && (
+            <span className="bg-green-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+              🥗 Veg
+            </span>
           )}
         </div>
-      )}
 
-      <div className="mt-3">
-        {meal.id ? (
-          <Link href={`/meals/${meal.id}`}>
-            <h3 className="font-semibold line-clamp-1 hover:text-orange-600">{meal.name}</h3>
-          </Link>
-        ) : (
-          <h3 className="font-semibold line-clamp-1 text-foreground">{meal.name}</h3>
-        )}
-        <p className="text-xs text-gray-500">{meal.provider?.restaurantName || "Restaurant"}</p>
-        <div className="mt-2 flex items-center justify-between">
-          <div>
-            {originalPrice && <span className="text-xs text-gray-400 line-through">₹{originalPrice}</span>}
-            <span className="ml-1 text-lg font-bold text-orange-600">₹{finalPrice}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm">{meal.rating?.toFixed(1) ?? "New"}</span>
-          </div>
+        {/* Rating */}
+        <div className="absolute top-2 right-2 flex items-center gap-0.5 bg-black/60 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">
+          <Star className="w-3 h-3 fill-orange-400 text-orange-400" />
+          {meal.rating > 0 ? meal.rating.toFixed(1) : "New"}
         </div>
-        <Button size="sm" className="mt-2 w-full bg-orange-500 hover:bg-orange-600">
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to Cart
-        </Button>
+
+        {/* Unavailable overlay */}
+        {!meal.isAvailable && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="text-white text-xs font-semibold bg-black/60 px-3 py-1 rounded-full">
+              Unavailable
+            </span>
+          </div>
+        )}
       </div>
-    </div>
+
+      {/* Body */}
+      <div className="p-3">
+        <h3 className="font-bold text-sm text-foreground line-clamp-1">
+          {meal.name}
+        </h3>
+
+        <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Clock3 className="w-3 h-3" />
+          <span>{meal.preparationTime ?? 30} min</span>
+          <span>·</span>
+          <span>{meal.category?.name || "Food"}</span>
+          {meal.calories && (
+            <>
+              <span>·</span>
+              <Flame className="w-3 h-3 text-orange-400" />
+              <span>{meal.calories} cal</span>
+            </>
+          )}
+        </div>
+
+        {meal.provider?.restaurantName && (
+          <p className="mt-1 text-[11px] text-muted-foreground line-clamp-1">
+            {meal.provider.restaurantName}
+          </p>
+        )}
+
+        {/* Price + Add */}
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm font-bold text-foreground">
+              ৳{meal.discountPrice ?? meal.price}
+            </span>
+            {meal.discountPrice && meal.discountPrice < meal.price && (
+              <span className="text-xs text-muted-foreground line-through">
+                ৳{meal.price}
+              </span>
+            )}
+          </div>
+          <button
+            disabled={!meal.isAvailable}
+            onClick={handleAddToCart}
+            className="bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
+          >
+            + Add
+          </button>
+        </div>
+      </div>
+    </article>
   );
 }

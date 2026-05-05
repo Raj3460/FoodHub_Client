@@ -28,8 +28,10 @@ export interface Meal {
   category?: {
     name: string;
     icon?: string;
+    slug?: string;
   };
 }
+
 
 
 export interface MealDetails {
@@ -42,12 +44,16 @@ export interface MealDetails {
   thumbnail?: string;
   rating: number;
   totalReviews: number;
+  totalOrders: number;    // ✅ add
+  viewCount?: number;     // ✅ add
   preparationTime?: number;
   calories?: number;
   isVegetarian: boolean;
   isSpicy: boolean;
   isAvailable: boolean;
   ingredients: string[];
+  providerId?: string;    // ✅ add
+  categoryId?: string;    // ✅ add
   provider: {
     id: string;
     restaurantName: string;
@@ -61,6 +67,8 @@ export interface MealDetails {
   };
   category: {
     name: string;
+    icon?: string;        // ✅ add
+    slug?: string;        // ✅ add
   };
   reviews: {
     id: string;

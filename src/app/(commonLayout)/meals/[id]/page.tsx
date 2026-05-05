@@ -5,24 +5,17 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Star,
-  Clock,
-  MapPin,
-  ShoppingCart,
-  Heart,
-  ChevronLeft,
-  Minus,
-  Plus,
-  Truck,
-  Award,
+  Star, Clock, MapPin, ShoppingCart,
+  ChevronLeft, Minus, Plus, Truck, Award, Flame,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { mealsService } from "@/services/meals.service";
 import { useCartStore } from "@/stores/cartStore";
+import { authClient } from "@/lib/auth-client";
 import { MealDetails } from "@/types";
 
 export default function MealDetailsPage() {
@@ -33,54 +26,61 @@ export default function MealDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-
-  // ✅ Cart Store থেকে addItem ফাংশন নিন
   const addItem = useCartStore((state) => state.addItem);
+  const { data: session } = authClient.useSession();
 
   useEffect(() => {
     const fetchMeal = async () => {
       setLoading(true);
       const data = await mealsService.fetchMealById(id as string);
-      if (data) {
-        setMeal(data);
-      } else {
-        setError("Meal not found");
-      }
+      if (data) setMeal(data);
+      else setError("Meal not found");
       setLoading(false);
     };
     fetchMeal();
   }, [id]);
 
-  // ✅ Add to Cart হ্যান্ডলার
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!meal) return;
 
-    const finalPrice = meal.discountPrice ?? meal.price;
+    // ✅ Login check
+    if (!session?.user) {
+      toast.error("Please login to add items to cart", {
+        duration: 3000,
+        action: {
+          label: "Login →",
+          onClick: () => router.push("/login"),
+        },
+      });
+      return;
+    }
 
-    await addItem({
+    addItem({
       id: meal.id,
       mealId: meal.id,
       name: meal.name,
-      price: finalPrice,
-      quantity: quantity,
-      thumbnail: meal.thumbnail || meal.images?.[0],
+      price: meal.discountPrice ?? meal.price,
+      quantity,
+      thumbnail: meal.thumbnail || meal.images?.[0] || "",
       providerId: meal.provider?.id,
-      providerName: meal.provider?.restaurantName,
+      providerName: meal.provider?.restaurantName || "",
     });
-
-    toast.success(`${quantity} × ${meal.name} added to cart`);
+    toast.success(`${quantity} × ${meal.name} added to cart!`, { duration: 2000 });
   };
 
+  // Skeleton
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
+        <div className="h-4 w-20 rounded-full bg-muted animate-pulse mb-6" />
         <div className="grid gap-8 lg:grid-cols-2">
-          <Skeleton className="h-96 w-full rounded-xl" />
+          <Skeleton className="aspect-square w-full rounded-2xl" />
           <div className="space-y-4">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-12 w-32" />
+            <Skeleton className="h-7 w-3/4 rounded-full" />
+            <Skeleton className="h-4 w-1/3 rounded-full" />
+            <Skeleton className="h-16 w-full rounded-xl" />
+            <Skeleton className="h-8 w-1/4 rounded-full" />
+            <Skeleton className="h-12 w-full rounded-full" />
           </div>
         </div>
       </div>
@@ -90,10 +90,14 @@ export default function MealDetailsPage() {
   if (error || !meal) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-2xl font-bold text-red-500">{error || "Meal not found"}</h1>
-        <Button onClick={() => router.back()} className="mt-4">
+        <p className="text-4xl mb-3">🍽️</p>
+        <h1 className="text-xl font-semibold text-foreground">{error || "Meal not found"}</h1>
+        <button
+          onClick={() => router.back()}
+          className="mt-4 rounded-full bg-orange-500 px-6 py-2 text-sm font-medium text-white hover:bg-orange-600 transition-colors"
+        >
           Go Back
-        </Button>
+        </button>
       </div>
     );
   }
@@ -104,198 +108,285 @@ export default function MealDetailsPage() {
     ? Math.round(((originalPrice - finalPrice) / originalPrice) * 100)
     : 0;
 
+  const displayImages = meal.images?.length
+    ? meal.images
+    : meal.thumbnail
+    ? [meal.thumbnail]
+    : [];
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Back Button */}
-      <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-        <ChevronLeft className="mr-2 h-4 w-4" />
-        Back
-      </Button>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* Image Gallery */}
-        <div>
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100">
-            <Image
-              src={meal.thumbnail || "/placeholder-food.jpg"}
-              alt={meal.name}
-              fill
-              className="object-cover"
-              priority
-            />
-            {discountPercent > 0 && (
-              <Badge className="absolute left-3 top-3 bg-red-500 text-white">
-                -{discountPercent}%
-              </Badge>
+      {/* Back */}
+      <button
+        onClick={() => router.back()}
+        className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Back to meals
+      </button>
+
+      <div className="grid gap-10 lg:grid-cols-2">
+
+        {/* Left — Image */}
+        <div className="space-y-3">
+
+          {/* Main image — aspect-video (16:9) instead of square */}
+          <div className="relative w-full overflow-hidden rounded-2xl bg-muted" style={{ aspectRatio: "4/3" }}>
+            {displayImages[selectedImage] || meal.thumbnail ? (
+              <img
+                src={ meal.thumbnail || ""}
+                alt={meal.name}
+                // fill
+                className="object-cover"
+                // priority
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-6xl">🍽️</div>
             )}
-            {meal.isVegetarian && (
-              <Badge className="absolute right-3 top-3 bg-green-500 text-white">
-                Vegetarian
-              </Badge>
+
+            {/* Badges top left */}
+            <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+              {discountPercent > 0 && (
+                <span className="bg-orange-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
+                  {discountPercent}% off
+                </span>
+              )}
+              {meal.isSpicy && (
+                <span className="bg-red-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
+                  🌶 Spicy
+                </span>
+              )}
+              {meal.isVegetarian && (
+                <span className="bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
+                  🥗 Veg
+                </span>
+              )}
+            </div>
+
+            {/* Rating top right */}
+            {meal.rating > 0 && (
+              <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                <Star className="w-3 h-3 fill-orange-400 text-orange-400" />
+                {meal.rating.toFixed(1)}
+              </div>
+            )}
+
+            {/* Unavailable overlay */}
+            {!meal.isAvailable && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <span className="text-white text-sm font-semibold bg-black/60 px-4 py-2 rounded-full">
+                  Currently Unavailable
+                </span>
+              </div>
             )}
           </div>
-          {meal.images && meal.images.length > 1 && (
-            <div className="mt-4 flex gap-2 overflow-x-auto">
-              {meal.images.map((img, idx) => (
+
+          {/* Thumbnail row — smaller */}
+          {displayImages.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {displayImages.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
-                  className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
+                  className={`relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
                     selectedImage === idx
                       ? "border-orange-500"
-                      : "border-transparent opacity-70 hover:opacity-100"
+                      : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <Image src={img} alt={`${meal.name} ${idx + 1}`} fill className="object-cover" />
+                  <Image src={img} alt={`img-${idx}`} fill className="object-cover" />
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Meal Info */}
-        <div className="space-y-4">
+        {/* Right — Info */}
+        <div className="flex flex-col gap-5">
+
+          {/* Name + provider + rating */}
           <div>
-            <h1 className="text-3xl font-bold">{meal.name}</h1>
-            <div className="mt-2 flex items-center gap-3">
-              <Link href={`/providers/${meal.provider.id}`}>
-                <span className="text-sm text-orange-500 hover:underline">
-                  {meal.provider.restaurantName}
-                </span>
+            <h1 className="text-2xl font-bold text-foreground leading-tight">{meal.name}</h1>
+            <div className="mt-2 flex items-center gap-3 flex-wrap">
+              <Link
+                href={`/providers/${meal.provider?.id}`}
+                className="text-sm text-orange-500 hover:underline"
+              >
+                {meal.provider?.restaurantName || "View Restaurant"}
               </Link>
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{meal.rating?.toFixed(1) ?? "New"}</span>
-                <span className="text-xs text-gray-500">({meal.totalReviews} reviews)</span>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Star className="w-3.5 h-3.5 fill-orange-400 text-orange-400" />
+                <span>{meal.rating > 0 ? meal.rating.toFixed(1) : "New"}</span>
+                {meal.totalReviews > 0 && (
+                  <span>· {meal.totalReviews} reviews</span>
+                )}
               </div>
             </div>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-400">{meal.description}</p>
+          {/* Description */}
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {meal.description}
+          </p>
+
+          {/* Info chips */}
+          <div className="flex flex-wrap gap-2">
+            {meal.preparationTime && (
+              <span className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground">
+                <Clock className="w-3 h-3" /> {meal.preparationTime} min
+              </span>
+            )}
+            {meal.calories && (
+              <span className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground">
+                <Flame className="w-3 h-3 text-orange-400" /> {meal.calories} cal
+              </span>
+            )}
+            {meal.category?.name && (
+              <span className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground">
+                {meal.category.name}
+              </span>
+            )}
+            {meal.totalOrders > 0 && (
+              <span className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground">
+                🛒 {meal.totalOrders} orders
+              </span>
+            )}
+          </div>
 
           {/* Price */}
           <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-foreground">৳{finalPrice}</span>
             {originalPrice && (
-              <span className="text-xl text-gray-400 line-through">₹{originalPrice}</span>
+              <span className="text-base text-muted-foreground line-through">৳{originalPrice}</span>
             )}
-            <span className="text-3xl font-bold text-orange-600">₹{finalPrice}</span>
           </div>
 
-          {/* Badges */}
-          <div className="flex flex-wrap gap-2">
-            {meal.isSpicy && <Badge variant="outline">🌶️ Spicy</Badge>}
-            {!meal.isAvailable && <Badge variant="destructive">Currently Unavailable</Badge>}
-            {meal.preparationTime && (
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {meal.preparationTime} min
-              </Badge>
-            )}
-            {meal.calories && <Badge variant="outline">🔥 {meal.calories} cal</Badge>}
-          </div>
-
-          {/* Quantity Selector */}
+          {/* Quantity + Add */}
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">Quantity:</span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
+            <div className="flex items-center gap-3 rounded-full border border-border px-2 py-1">
+              <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
               >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <span className="w-8 text-center font-medium">{quantity}</span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="w-5 text-center font-semibold text-foreground text-sm">
+                {quantity}
+              </span>
+              <button
                 onClick={() => setQuantity(quantity + 1)}
+                className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
               >
-                <Plus className="h-3 w-3" />
-              </Button>
+                <Plus className="w-3 h-3" />
+              </button>
             </div>
+
+            <button
+              onClick={handleAddToCart}
+              disabled={!meal.isAvailable}
+              className="flex-1 rounded-full bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-2.5 flex items-center justify-center gap-2 transition-colors text-sm"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              {meal.isAvailable
+                ? `Add to Cart · ৳${finalPrice * quantity}`
+                : "Out of Stock"}
+            </button>
           </div>
 
-          {/* Add to Cart Button */}
-          <Button
-            size="lg"
-            className="w-full bg-orange-500 hover:bg-orange-600"
-            onClick={handleAddToCart}
-            disabled={!meal.isAvailable}
-          >
-            <ShoppingCart className="mr-2 h-4 w-4" />
-            {meal.isAvailable ? `Add to Cart · ₹${finalPrice * quantity}` : "Out of Stock"}
-          </Button>
-
-          {/* Restaurant Info */}
-          <div className="rounded-lg border p-4">
-            <h3 className="mb-3 font-semibold">Restaurant Info</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-500" />
-                <span>{meal.provider.address || `${meal.provider.area}, ${meal.provider.city}`}</span>
+          {/* Restaurant info */}
+          <div className="rounded-2xl border border-border p-4 space-y-2.5 bg-muted/30">
+            <p className="text-sm font-semibold text-foreground">Restaurant Info</p>
+            {(meal.provider?.area || meal.provider?.city) && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                {meal.provider?.address ||
+                  [meal.provider?.area, meal.provider?.city].filter(Boolean).join(", ")}
               </div>
-              <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4 text-gray-500" />
-                <span>Delivery Fee: ₹{meal.provider.deliveryFee || 0}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Award className="h-4 w-4 text-gray-500" />
-                <span>Min Order: ₹{meal.provider.minOrderAmount}</span>
-              </div>
+            )}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Truck className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+              Delivery fee: ৳{meal.provider?.deliveryFee ?? 0}
             </div>
+            {meal.provider?.minOrderAmount && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Award className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                Min order: ৳{meal.provider.minOrderAmount}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Ingredients & Reviews Tabs */}
-      <div className="mt-12">
-        <Tabs defaultValue="ingredients" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+      {/* Tabs */}
+      <div className="mt-10">
+        <Tabs defaultValue="ingredients">
+          <TabsList className="rounded-full border border-border bg-transparent p-1 h-auto">
+            <TabsTrigger
+              value="ingredients"
+              className="rounded-full data-[state=active]:bg-orange-500 data-[state=active]:text-white px-5 py-1.5 text-sm transition-all"
+            >
+              Ingredients
+            </TabsTrigger>
+            <TabsTrigger
+              value="reviews"
+              className="rounded-full data-[state=active]:bg-orange-500 data-[state=active]:text-white px-5 py-1.5 text-sm transition-all"
+            >
+              Reviews {meal.totalReviews > 0 && `(${meal.totalReviews})`}
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="ingredients" className="mt-4">
-            <div className="rounded-lg border p-4">
-              <ul className="list-inside list-disc space-y-1">
-                {meal.ingredients?.map((item, idx) => (
-                  <li key={idx} className="text-sm text-gray-600 dark:text-gray-400">
+          {/* Ingredients */}
+          <TabsContent value="ingredients" className="mt-5">
+            {meal.ingredients?.length ? (
+              <div className="flex flex-wrap gap-2">
+                {meal.ingredients.map((item, idx) => (
+                  <span
+                    key={idx}
+                    className="text-sm px-3 py-1.5 rounded-full bg-muted text-muted-foreground"
+                  >
                     {item}
-                  </li>
+                  </span>
                 ))}
-              </ul>
-            </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No ingredients listed.</p>
+            )}
           </TabsContent>
 
-          <TabsContent value="reviews" className="mt-4">
-            <div className="space-y-4">
-              {meal.reviews?.length === 0 ? (
-                <p className="text-center text-gray-500">No reviews yet.</p>
-              ) : (
-                meal.reviews?.map((review) => (
-                  <div key={review.id} className="rounded-lg border p-4">
-                    <div className="flex items-center justify-between">
+          {/* Reviews */}
+          <TabsContent value="reviews" className="mt-5">
+            {!meal.reviews?.length ? (
+              <div className="text-center py-10">
+                <p className="text-3xl mb-2">⭐</p>
+                <p className="text-sm text-muted-foreground">No reviews yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {meal.reviews.map((review) => (
+                  <div key={review.id} className="rounded-2xl border border-border p-4">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{review.customerName}</span>
-                        <div className="flex items-center gap-0.5">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm">{review.rating}</span>
+                        <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-950/40 flex items-center justify-center text-sm font-semibold text-orange-600">
+                          {review.customerName?.charAt(0) ?? "U"}
                         </div>
+                        <span className="text-sm font-medium text-foreground">
+                          {review.customerName}
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-400">
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 fill-orange-400 text-orange-400" />
+                        <span className="text-sm font-medium">{review.rating}</span>
+                        <span className="text-xs text-muted-foreground ml-1">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                      {review.comment}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{review.comment}</p>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
