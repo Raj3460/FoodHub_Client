@@ -1,5 +1,5 @@
+// stores/cartStore.ts
 import { create } from "zustand";
-
 import { env } from "@/env";
 import { authClient } from "@/lib/auth-client";
 
@@ -12,18 +12,17 @@ export interface CartItem {
   thumbnail?: string;
   providerId?: string;
   providerName?: string;
-  
 }
 
 interface CartStore {
   items: CartItem[];
   isLoading: boolean;
   fetchCart: () => Promise<void>;
-  addItem: (item: CartItem) => Promise<void>;
+  addItem: (item: Omit<CartItem, "id">) => Promise<void>;
   updateQuantity: (mealId: string, quantity: number) => Promise<void>;
   removeItem: (mealId: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  // Helper functions (synchronous)
+  // Helpers
   getTotalItems: () => number;
   getSubtotal: () => number;
   getDeliveryFee: () => number;
@@ -35,17 +34,13 @@ export const useCartStore = create<CartStore>((set, get) => ({
   isLoading: false,
 
   fetchCart: async () => {
-    // Check if user is authenticated first
     try {
       const { data: session } = await authClient.getSession();
       if (!session?.user) {
-        // No valid session, clear cart and return
         set({ items: [], isLoading: false });
         return;
       }
-    } catch (error) {
-      // If we can't check session, assume not authenticated
-      console.warn("Could not verify authentication status:", error);
+    } catch {
       set({ items: [], isLoading: false });
       return;
     }
@@ -56,25 +51,22 @@ export const useCartStore = create<CartStore>((set, get) => ({
         credentials: "include",
       });
       if (!res.ok) {
-        if (res.status === 403) {
-          // User not authorized, clear cart
-          set({ items: [], isLoading: false });
-          return;
-        }
-        throw new Error(`HTTP error! status: ${res.status}`);
+        if (res.status === 403) set({ items: [] });
+        throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
       if (data.success) {
-        const items = data.data?.items?.map((item: any) => ({
-          id: item.id,
-          mealId: item.mealId,
-          name: item.meal.name,
-          price: item.meal.price,
-          quantity: item.quantity,
-          thumbnail: item.meal.thumbnail,
-          providerId: item.meal.providerId,
-          providerName: item.meal.provider?.restaurantName,
-        })) || [];
+        const items =
+          data.data?.items?.map((item: any) => ({
+            id: item.id,
+            mealId: item.mealId,
+            name: item.meal.name,
+            price: item.meal.price,
+            quantity: item.quantity,
+            thumbnail: item.meal.thumbnail,
+            providerId: item.meal.providerId,
+            providerName: item.meal.provider?.restaurantName,
+          })) || [];
         set({ items });
       }
     } catch (error) {
@@ -84,22 +76,20 @@ export const useCartStore = create<CartStore>((set, get) => ({
     }
   },
 
-  addItem: async (item) => {
+  addItem: async (newItem) => {
     try {
       const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mealId: item.mealId,
-          quantity: item.quantity,
+          mealId: newItem.mealId,
+          quantity: newItem.quantity,
         }),
         credentials: "include",
       });
-      if (res.status === 403) {
-        console.warn("User not authenticated, cannot add item to cart");
-        return;
-      }
+      if (res.status === 403) return;
       if (res.ok) {
+        // After adding, we still need the server-generated id and possibly updated fields
         await get().fetchCart();
       }
     } catch (error) {
@@ -107,81 +97,91 @@ export const useCartStore = create<CartStore>((set, get) => ({
     }
   },
 
+  // ✅ OPTIMISTIC UPDATE – changes locally first, then syncs to server
   updateQuantity: async (mealId, quantity) => {
+    const existingItem = get().items.find((i) => i.mealId === mealId);
+    if (!existingItem) return;
+
+    const oldQuantity = existingItem.quantity;
+    const itemId = existingItem.id;
+
+    // 1. Optimistic local update
+    set({
+      items: get().items.map((item) =>
+        item.mealId === mealId ? { ...item, quantity } : item
+      ),
+    });
+
+    // 2. Call API in background
     try {
-      const item = get().items.find((i) => i.mealId === mealId);
-      if (!item) return;
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart/${item.id}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart/${itemId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity }),
         credentials: "include",
       });
-      if (res.status === 403) {
-        console.warn("User not authenticated, cannot update cart item");
-        return;
-      }
-      if (res.ok) {
-        await get().fetchCart();
-      }
+      if (res.status === 403) throw new Error("Not authenticated");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      // Success – nothing else to do
     } catch (error) {
+      // 3. Rollback on error
+      set({
+        items: get().items.map((item) =>
+          item.mealId === mealId ? { ...item, quantity: oldQuantity } : item
+        ),
+      });
       console.error("Failed to update quantity:", error);
+      throw error; // re-throw so the UI can show a toast
     }
   },
 
   removeItem: async (mealId) => {
+    const existingItem = get().items.find((i) => i.mealId === mealId);
+    if (!existingItem) return;
+
+    const itemId = existingItem.id;
+    const removedItem = existingItem;
+
+    // 1. Optimistic remove
+    set({ items: get().items.filter((i) => i.mealId !== mealId) });
+
+    // 2. API call
     try {
-      const item = get().items.find((i) => i.mealId === mealId);
-      if (!item) return;
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart/${item.id}`, {
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart/${itemId}`, {
         method: "DELETE",
         credentials: "include",
       });
-      if (res.status === 403) {
-        console.warn("User not authenticated, cannot remove cart item");
-        return;
-      }
-      if (res.ok) {
-        await get().fetchCart();
-      }
+      if (res.status === 403) throw new Error("Not authenticated");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
     } catch (error) {
+      // 3. Rollback – add the item back
+      set({ items: [...get().items, removedItem] });
       console.error("Failed to remove item:", error);
+      throw error;
     }
   },
 
   clearCart: async () => {
+    const oldItems = get().items;
+    set({ items: [] });
     try {
       const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/cart`, {
         method: "DELETE",
         credentials: "include",
       });
-      if (res.status === 403) {
-        console.warn("User not authenticated, cannot clear cart");
-        return;
-      }
-      if (res.ok) {
-        set({ items: [] });
-      }
+      if (!res.ok) throw new Error();
     } catch (error) {
+      set({ items: oldItems });
       console.error("Failed to clear cart:", error);
+      throw error;
     }
   },
 
-  // ✅ Helper functions (synchronous - work with current state)
-  getTotalItems: () => {
-    return get().items.reduce((total, item) => total + item.quantity, 0);
-  },
-
-  getSubtotal: () => {
-    return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
-  },
-
+  getTotalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
+  getSubtotal: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
   getDeliveryFee: () => {
     const subtotal = get().getSubtotal();
     return subtotal > 0 && subtotal < 500 ? 50 : 0;
   },
-
-  getTotal: () => {
-    return get().getSubtotal() + get().getDeliveryFee();
-  },
+  getTotal: () => get().getSubtotal() + get().getDeliveryFee(),
 }));

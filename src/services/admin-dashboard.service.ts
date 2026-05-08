@@ -44,9 +44,16 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
-  isActive: boolean;
+  description: string | null;
+  icon: string | null;
+  image: string | null;
   displayOrder: number;
+  isActive: boolean;
+  createdAt: Date | string; // গুরুত্বপূর্ণ
+  updatedAt: Date | string;
+  _count?: { meals: number }; // অপশনাল, টেবিলে লাগতে পারে
 }
+
 
 export const adminDashboardService = {
   // Dashboard Stats
@@ -59,7 +66,7 @@ export const adminDashboardService = {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      
+
       if (data.success) {
         return {
           totalUsers: data.data.totalUsers ?? 0,
@@ -108,14 +115,20 @@ export const adminDashboardService = {
     }
   },
 
-  updateUserStatus: async (userId: string, status: string): Promise<boolean> => {
+  updateUserStatus: async (
+    userId: string,
+    status: string,
+  ): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/users/${userId}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/admin/users/${userId}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+          credentials: "include",
+        },
+      );
       return res.ok;
     } catch (error) {
       console.error("Failed to update user status:", error);
@@ -126,9 +139,12 @@ export const adminDashboardService = {
   // Providers Management
   getProviders: async (): Promise<Provider[]> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/providers`, {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/admin/providers`,
+        {
+          credentials: "include",
+        },
+      );
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -140,14 +156,20 @@ export const adminDashboardService = {
     }
   },
 
-  approveProvider: async (providerId: string, isApproved: boolean): Promise<boolean> => {
+  approveProvider: async (
+    providerId: string,
+    isApproved: boolean,
+  ): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/providers/${providerId}/approve`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isApproved }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/admin/providers/${providerId}/approve`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isApproved }),
+          credentials: "include",
+        },
+      );
       return res.ok;
     } catch (error) {
       console.error("Failed to approve provider:", error);
@@ -155,14 +177,20 @@ export const adminDashboardService = {
     }
   },
 
-  toggleFeatured: async (providerId: string, isFeatured: boolean): Promise<boolean> => {
+  toggleFeatured: async (
+    providerId: string,
+    isFeatured: boolean,
+  ): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/providers/${providerId}/featured`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isFeatured }),
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/admin/providers/${providerId}/featured`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isFeatured }),
+          credentials: "include",
+        },
+      );
       return res.ok;
     } catch (error) {
       console.error("Failed to toggle featured:", error);
@@ -204,7 +232,10 @@ export const adminDashboardService = {
     }
   },
 
-  createCategory: async (data: { name: string; slug: string }): Promise<boolean> => {
+  createCategory: async (data: {
+    name: string;
+    slug: string;
+  }): Promise<boolean> => {
     try {
       const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/categories`, {
         method: "POST",
@@ -219,14 +250,20 @@ export const adminDashboardService = {
     }
   },
 
-  updateCategory: async (id: string, data: { name: string; slug: string }): Promise<boolean> => {
+  updateCategory: async (
+    id: string,
+    data: { name: string; slug: string },
+  ): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/categories/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/categories/${id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+          credentials: "include",
+        },
+      );
       return res.ok;
     } catch (error) {
       console.error("Failed to update category:", error);
@@ -236,10 +273,13 @@ export const adminDashboardService = {
 
   deleteCategory: async (id: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/categories/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/categories/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
       return res.ok;
     } catch (error) {
       console.error("Failed to delete category:", error);

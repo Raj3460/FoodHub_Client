@@ -16,18 +16,23 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      // ✅ Example.com যোগ করুন
       {
         protocol: 'https',
         hostname: 'example.com',
         port: '',
         pathname: '/**',
       },
-      // আপনার লোকাল ব্যাকএন্ডের জন্য
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '5000',
+        pathname: '/**',
+      },
+      // ✅ Cloudinary যোগ করুন
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
         pathname: '/**',
       },
     ],
