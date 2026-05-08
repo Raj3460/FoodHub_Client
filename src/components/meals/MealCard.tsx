@@ -30,7 +30,7 @@ export function MealCard({ meal }: { meal: Meal }) {
 
 
     addItem({
-      id: meal.id,
+      // id: meal.id,
       mealId: meal.id,
       name: meal.name,
       price: meal.discountPrice ?? meal.price,
