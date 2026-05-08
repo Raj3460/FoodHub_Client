@@ -56,7 +56,7 @@ export default function MealDetailsPage() {
     }
 
     addItem({
-      id: meal.id,
+      // id: meal.id,
       mealId: meal.id,
       name: meal.name,
       price: meal.discountPrice ?? meal.price,
