@@ -121,7 +121,6 @@ export function DashboardHeader() {
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
             <DropdownMenuSeparator /> */}
-            
             {/* Logout with confirmation dialog */}
             {/* <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
               <AlertDialogTrigger asChild>
