@@ -36,7 +36,7 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
     },
     {
       title: "Total Revenue",
-      value: `₹${stats.totalRevenue.toLocaleString()}`,
+      value: `${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
       color: "text-purple-500",
     },

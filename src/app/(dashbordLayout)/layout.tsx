@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SidebarInset>
           {/* Header with SidebarTrigger */}
           <header className="flex h-16 shrink-0 items-center justify-between bg-background gap-2 border-b px-4 sticky top-0 z-30">
-            <SidebarTrigger className="-ml-1" />
+            <SidebarTrigger className="-ml-1 block sm:hidden" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <DashboardHeader />
           </header>

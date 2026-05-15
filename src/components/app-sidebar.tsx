@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
@@ -24,10 +25,52 @@ import {
   LogOut,
   HelpCircle,
   Store,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-// Role-based menu items
+function SidebarCollapseToggle() {
+  const { toggleSidebar, open, isMobile } = useSidebar();
+
+  // if (isMobile) return null;
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggleSidebar}
+      className={cn(
+        "h-8 w-8 rounded-md transition-all duration-200",
+        "hover:bg-orange-50 hover:text-orange-500",
+        "text-muted-foreground"
+      )}
+      aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+      title={open ? "Collapse sidebar" : "Expand sidebar"}
+    >
+      {open ? (
+        <PanelLeftClose className="h-4 w-4" />
+      ) : (
+        <PanelLeftOpen className="h-4 w-4" />
+      )}
+    </Button>
+  );
+}
+
 const menuItems = {
   admin: [
     {
@@ -51,11 +94,7 @@ const menuItems = {
     {
       title: "Management",
       items: [
-        {
-          name: "Dashboard",
-          href: "/provider/dashboard",
-          icon: LayoutDashboard,
-        },
+        { name: "Dashboard", href: "/provider/dashboard", icon: LayoutDashboard },
         { name: "My Menu", href: "/provider/menu", icon: Utensils },
         { name: "Orders", href: "/provider/orders", icon: ShoppingBag },
       ],
@@ -72,11 +111,7 @@ const menuItems = {
     {
       title: "Overview",
       items: [
-        {
-          name: "Dashboard",
-          href: "/customer/dashboard",
-          icon: LayoutDashboard,
-        },
+        { name: "Dashboard", href: "/customer/dashboard", icon: LayoutDashboard },
         { name: "My Orders", href: "/customer/orders", icon: ShoppingBag },
         { name: "Favorites", href: "/customer/favorites", icon: Utensils },
       ],
@@ -93,28 +128,47 @@ const menuItems = {
 
 export function AppSidebar() {
   const pathname = usePathname();
-
-  // ✅ Session থেকে role নেওয়া
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();
-  console.log("Session in AppSidebar:", session);
   const role = (session?.user as any)?.role?.toLowerCase?.() || "customer";
-  console.log("Determined role in AppSidebar:", role);
-  
+
+  const handleConfirmLogout = async () => {
+    setDialogOpen(false);
+    try {
+      setIsLoggingOut(true);
+      await authClient.signOut();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   if (isPending) {
     return <div className="w-64 border-r p-4">Loading...</div>;
   }
+
   const items = menuItems[role as keyof typeof menuItems] || menuItems.customer;
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4 border-b">
-        <Link href="/" className="block hover:opacity-80 transition-opacity">
-          <h1 className="text-xl font-bold text-orange-500">FoodHub</h1>
-          <p className="text-xs text-muted-foreground capitalize">
-            {role} Panel
-          </p>
-        </Link>
+    <Sidebar collapsible="icon">
+      {/* Collapsed হলে শুধু toggle icon দেখাবে */}
+      <SidebarHeader className="p-2">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/"
+            className="text-xl font-bold text-orange-500 hover:opacity-80 transition-opacity group-data-[collapsible=icon]:hidden"
+          >
+            FoodHub
+          </Link>
+          <SidebarCollapseToggle />
+        </div>
+        <p className="text-xs text-muted-foreground capitalize group-data-[collapsible=icon]:hidden">
+          {role} Panel
+        </p>
       </SidebarHeader>
 
       <SidebarContent>
@@ -142,17 +196,32 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-3">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-destructive">
-              <Link href="/login">
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </Link>
+      <SidebarFooter className="p-2">
+        <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <AlertDialogTrigger asChild>
+            <SidebarMenuButton
+              className="text-destructive w-full"
+              disabled={isLoggingOut}
+            >
+              <LogOut className="h-4 w-4" />
+              <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
             </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You will be logged out of your account.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmLogout}>
+                Logout
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </SidebarFooter>
 
       <SidebarRail />
