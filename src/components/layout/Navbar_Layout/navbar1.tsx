@@ -80,10 +80,7 @@ export function Navbar1({ className }: Navbar1Props) {
         {/* Mobile menu */}
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
-            <Logo title="FoodHub" />
             <div className="flex items-center gap-2">
-              {/* Show cart icon only when user is logged in */}
-              {session?.user && <CartIcon itemCount={totalItems} />}
               <MobileMenu
                 logoTitle="FoodHub"
                 open={mobileOpen}
@@ -97,23 +94,30 @@ export function Navbar1({ className }: Navbar1Props) {
                         router.push(item.url);
                         setMobileOpen(false);
                       }}
-                      className="text-md font-semibold py-2 text-left"
+                      className="text-md font-semibold  text-left"
                     >
                       {item.title}
                     </button>
                   ))}
                 </div>
-                <div className="flex flex-col gap-3">
-                  <ModeToggle />
-                  <AuthButtons
-                    session={session}
-                    isPending={isPending}
-                    onLogout={handleLogout}
-                    loginUrl="/login"
-                    signupUrl="/signup"
-                  />
-                </div>
               </MobileMenu>
+              <Logo title="" />
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Show cart icon only when user is logged in */}
+              {session?.user && <CartIcon itemCount={totalItems} />}
+
+              <div className="flex flex-col gap-3">
+                {/* <ModeToggle /> */}
+                <AuthButtons
+                  session={session}
+                  isPending={isPending}
+                  onLogout={handleLogout}
+                  loginUrl="/login"
+                  signupUrl="/signup"
+                />
+              </div>
             </div>
           </div>
         </div>
