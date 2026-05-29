@@ -82,7 +82,7 @@ export function Navbar1({ className }: Navbar1Props) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MobileMenu
-                logoTitle="FoodHub"
+                logoTitle="Foodghor"
                 open={mobileOpen}
                 onOpenChange={setMobileOpen}
               >
