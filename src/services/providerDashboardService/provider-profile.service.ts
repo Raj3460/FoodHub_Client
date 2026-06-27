@@ -37,50 +37,7 @@ export const createMyProfile = async (
   }
 };
 
-// PUT — বিদ্যমান প্রোফাইল আপডেট
-// export const updateMyProfile = async (
-//   payload: ProviderProfileUpdatePayload
-// ): Promise<ProviderProfile | null> => {
-//   try {
-//     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/providers/my/profile`, {
-//       method: "PUT",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(payload),
-//       credentials: "include",
-//     });
-//     if (!res.ok) return null;
-//     const data = await res.json();
-//     return data.success ? data.data : null;
-//   } catch (error) {
-//     console.error("Failed to update profile:", error);
-//     return null;
-//   }
-// };
-
-
-// export const updateMyProfile = async (
-//   payload: ProviderProfileUpdatePayload
-// ): Promise<ProviderProfile | null> => {
-//   try {
-//     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/providers/my/profile`, {
-//       method: "PUT",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(payload),
-//       credentials: "include",
-//     });
-//     const data = await res.json();
-//     if (!res.ok) {
-//       // ব্যাকএন্ড থেকে আসা ত্রুটি বার্তা throw করব
-//       throw new Error(data?.message ?? data?.error ?? "Update failed");
-//     }
-//     return data.success ? data.data : null;
-//   } catch (error) {
-//     // নেটওয়ার্ক ত্রুটি বা অন্য কিছু
-//     throw error;
-//   }
-// };
-
-// src/services/providerDashboardService/provider-profile.service.ts
+//Put — প্রোভাইডার প্রোফাইল আপডেট
 export const updateMyProfile = async (
   payload: ProviderProfileUpdatePayload
 ): Promise<ProviderProfile | null> => {

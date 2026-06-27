@@ -1,4 +1,4 @@
-// src/components/modules/authentication/login-form.tsx
+// src/components/modules/authentication/provider-login-form.tsx
 
 "use client";
 
@@ -30,7 +30,7 @@ const formSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
+export function ProviderLoginForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
 
   const form = useForm({
@@ -45,9 +45,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
         });
 
         if (result.error) {
-          toast.error(result.error.message || "Invalid credentials", {
-            id: toastId,
-          });
+          toast.error(result.error.message || "Invalid credentials", { id: toastId });
           return;
         }
 
@@ -57,46 +55,35 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
           return;
         }
 
-        // ✅ এই পেজে Customer না হলে ঢুকতে দেওয়া হচ্ছে না
-        if (user.role !== "CUSTOMER") {
+        // ✅ এই পেজে Provider না হলে ঢুকতে দেওয়া হচ্ছে না
+        if (user.role !== "PROVIDER") {
           toast.error(
-            "This login is only for customers. Please use the appropriate login.",
-            { id: toastId },
+            "This login is only for restaurant partners. Please use the customer login.",
+            { id: toastId }
           );
           await authClient.signOut();
           return;
         }
 
-        toast.success("Logged in successfully", { id: toastId });
-        router.push("/");
+        toast.success("Welcome back!", { id: toastId });
+        router.push("/provider/dashboard");
       } catch (error: any) {
         toast.error(error.message || "Something went wrong", { id: toastId });
       }
     },
   });
 
-  const handleGoogleLogin = async () => {
-    try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: `${window.location.origin}/`,
-      });
-    } catch (error: any) {
-      toast.error("Google login failed. Please try again.");
-    }
-  };
-
   return (
     <Card {...props}>
       <CardHeader>
-        <CardTitle>Login to FoodGhor</CardTitle>
+        <CardTitle>🏪 Restaurant Partner Login</CardTitle>
         <CardDescription>
-          Welcome back! Please enter your credentials.
+          Login to manage your restaurant, menu, and orders.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form
-          id="login-form"
+          id="provider-login-form"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
@@ -105,8 +92,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
           <FieldGroup>
             <form.Field name="email">
               {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Email</FieldLabel>
@@ -117,9 +103,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                     />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
               }}
@@ -127,8 +111,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
 
             <form.Field name="password">
               {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Password</FieldLabel>
@@ -139,9 +122,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                     />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
               }}
@@ -150,21 +131,19 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-3">
-        <Button form="login-form" type="submit" className="w-full">
+        <Button form="provider-login-form" type="submit" className="w-full bg-orange-500 hover:bg-orange-600">
           Login
         </Button>
-        <Button
-          onClick={handleGoogleLogin}
-          variant="outline"
-          type="button"
-          className="w-full"
-        >
-          Continue with Google
-        </Button>
         <p className="text-sm text-center text-gray-500 mt-2">
-          Don't have an account?{" "}
-          <a href="/register" className="text-orange-500 hover:underline">
-            Sign up
+          New restaurant partner?{" "}
+          <a href="/provider/signup" className="text-orange-500 hover:underline">
+            Create an account
+          </a>
+        </p>
+        <p className="text-xs text-center text-gray-400">
+          Looking to order food?{" "}
+          <a href="/login" className="text-orange-500 hover:underline">
+            Customer login
           </a>
         </p>
       </CardFooter>

@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FoodHub",
-  description: "Generated foodHub app",
+  title: "FoodGhor",
+  description: "FoodGhor is a food delivery app built with Next.js, Prisma, and BetterAuth. It provides a seamless experience for users to order their favorite meals from local restaurants and have them delivered to their doorstep. With a user-friendly interface and secure authentication, FoodGhor aims to make food ordering convenient and enjoyable for everyone.",
 };
 
 export default function RootLayout({

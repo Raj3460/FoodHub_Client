@@ -6,6 +6,7 @@ import { userService } from "@/services/user.service";
 import FeaturedProvidersSection from "@/components/modules/homepage/FeaturedProvidersSection";
 import PopularMealsSection from "@/components/modules/homepage/PopularMealsSection";
 import Footer from "@/components/layout/footer";
+import ProviderAndRiderLogin from "@/components/modules/homepage/ProviderAndRiderLogin";
 
 export default async function HomePage() {
 
@@ -16,6 +17,7 @@ export default async function HomePage() {
   return (
     <div>
       <HeroSection />
+      <ProviderAndRiderLogin />
       <CategorySection />
       <PopularMealsSection />
       <FeaturedProvidersSection></FeaturedProvidersSection>  

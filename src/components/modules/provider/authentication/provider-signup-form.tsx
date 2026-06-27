@@ -25,7 +25,7 @@ import { useState } from "react";
 
 const formSchema = z
   .object({
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(1, "Owner name is required"),
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Minimum length is 6"),
     confirmPassword: z.string().min(6, "Minimum length is 6"),
@@ -35,7 +35,7 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+export function ProviderSignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(false);
 
@@ -63,7 +63,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const toastId = toast.loading("Creating account...");
+      const toastId = toast.loading("Creating restaurant account...");
 
       // 🔍 Before signing up, check if email already exists
       setIsChecking(true);
@@ -72,10 +72,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
       if (exists) {
         toast.error(
-          "This email is already registered. please login...",
+          "This email is already registered. Please login...",
           { id: toastId, duration: 3000 }
         );
-        // setTimeout(() => router.push("/login"), 2000);
+        // setTimeout(() => router.push("/provider/login"), 2000);
         return;
       }
 
@@ -84,7 +84,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           name: value.name,
           email: value.email,
           password: value.password,
-          role: "CUSTOMER",
+          role: "PROVIDER",
         } as any);
 
         if (result?.error) {
@@ -94,10 +94,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           return;
         }
 
-        toast.success("Registration successful! Please verify your email.", {
+        toast.success("Account created! Please verify your email to continue.", {
           id: toastId,
         });
-        router.push("/login");
+        router.push("/provider/login");
       } catch (error: any) {
         const msg = error?.message || "Something went wrong";
         if (
@@ -107,7 +107,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           toast.error("This email is already registered. Please login.", {
             id: toastId,
           });
-          setTimeout(() => router.push("/login"), 2000);
+          setTimeout(() => router.push("/provider/login"), 2000);
         } else {
           toast.error(msg, { id: toastId });
         }
@@ -118,29 +118,30 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   return (
     <Card {...props}>
       <CardHeader>
-        <CardTitle>Create an account</CardTitle>
+        <CardTitle>🏪 Become a Restaurant Partner</CardTitle>
         <CardDescription>
-          Enter your information below to create your account
+          Create your account first. After login, you can set up your restaurant
+          profile from the dashboard.
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         <form
-          id="signup-form"
+          id="provider-signup-form"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
         >
           <FieldGroup>
-            {/* Name */}
+            {/* Owner Name */}
             <form.Field name="name">
               {(field) => {
                 const isInvalid =
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Owner Name</FieldLabel>
                     <Input
                       type="text"
                       id={field.name}
@@ -169,7 +170,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
-                      placeholder="you@example.com"
+                      placeholder="restaurant@example.com"
                       onChange={(e) => field.handleChange(e.target.value)}
                       disabled={isChecking}
                     />
@@ -192,7 +193,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
-                      placeholder="Min. 6 characters"
+                      placeholder="Min. 8 characters"
                       onChange={(e) => field.handleChange(e.target.value)}
                       disabled={isChecking}
                     />
@@ -226,33 +227,31 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </form.Field>
           </FieldGroup>
 
+          <p className="text-xs text-orange-600 mt-4 bg-orange-50 px-3 py-2 rounded-lg">
+            ⚠️ After signing up, you&apos;ll need to add your restaurant details
+            and wait for admin approval before you can start selling.
+          </p>
+
           <CardFooter className="mt-4 px-0 flex-col gap-3">
             <Button
-              form="signup-form"
+              form="provider-signup-form"
               type="submit"
               className="w-full bg-orange-500 hover:bg-orange-600"
               disabled={isChecking}
             >
-              {isChecking ? "Checking..." : "Create Account"}
+              {isChecking ? "Checking..." : "Create Restaurant Account"}
             </Button>
 
-            <p className="text-xs text-center text-muted-foreground">
-              Already have an account?{" "}
-              <a href="/login" className="text-orange-500 hover:underline">
-                Login
+            <p className="text-xs text-center text-gray-500">
+              Already have a restaurant account?{" "}
+              <a href="/provider/login" className="text-orange-500 hover:underline">
+                Login here
               </a>
             </p>
-            <p className="text-xs text-center text-muted-foreground">
-              Want to sell food?{" "}
-              <a
-                href="/provider/signup"
-                className="text-orange-500 hover:underline"
-              >
-                Register as Restaurant
-              </a>{" "}
-              or{" "}
-              <a href="/become-rider" className="text-orange-500 hover:underline">
-                Become a Rider
+            <p className="text-xs text-center text-gray-400">
+              Want to order food instead?{" "}
+              <a href="/signup" className="text-orange-500 hover:underline">
+                Customer signup
               </a>
             </p>
           </CardFooter>

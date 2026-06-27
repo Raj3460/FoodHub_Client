@@ -1,3 +1,5 @@
+// src/app/(commonLayout)/login/page.tsx
+
 import { LoginForm } from "@/components/modules/authentication/login-form"
 
 export default function Page() {

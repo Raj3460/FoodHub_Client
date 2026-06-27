@@ -1,3 +1,5 @@
+// src/app/(commonLayout)/signup/page.tsx
+
 import { SignupForm } from "@/components/modules/authentication/signup-form"
 
 export default function Page() {
