@@ -15,7 +15,7 @@ import {
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { adminDashboardService, User } from "@/services/admin-dashboard.service";
+import { adminDashboardService, User } from "@/services/adminDashboardService/admin-dashboard.service";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);

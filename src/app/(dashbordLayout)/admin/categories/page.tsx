@@ -4,12 +4,12 @@ import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus } from "lucide-react";
-import { adminDashboardService, Category } from "@/services/admin-dashboard.service";
+import { adminDashboardService, Category } from "@/services/adminDashboardService/admin-dashboard.service";
 import { toast } from "sonner";
-import { CategoryTable } from "@/components/admin/categories/CategoryTable";
-import { CategoryPagination } from "@/components/admin/categories/CategoryPagination";
-import { CategoryDialog, CategoryFormData } from "@/components/admin/categories/CategoryDialog";
-import { CategoryDeleteAlert } from "@/components/admin/categories/CategoryDeleteAlert";
+import { CategoryTable } from "@/components/modules/admin/categories/CategoryTable";
+import { CategoryPagination } from "@/components/modules/admin/categories/CategoryPagination";
+import { CategoryDialog, CategoryFormData } from "@/components/modules/admin/categories/CategoryDialog";
+import { CategoryDeleteAlert } from "@/components/modules/admin/categories/CategoryDeleteAlert";
 
 const ITEMS_PER_PAGE = 8;
 

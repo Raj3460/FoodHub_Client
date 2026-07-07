@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Category } from "@/services/admin-dashboard.service";
+import { Category } from "@/services/adminDashboardService/admin-dashboard.service";
 
 interface CategoryTableProps {
   categories: Category[];

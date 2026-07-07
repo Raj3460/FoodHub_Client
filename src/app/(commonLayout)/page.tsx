@@ -20,7 +20,7 @@ export default async function HomePage() {
       <ProviderAndRiderLogin />
       <CategorySection />
       <PopularMealsSection />
-      <FeaturedProvidersSection></FeaturedProvidersSection>  
+      <FeaturedProvidersSection></FeaturedProvidersSection>  // all restaurants
       <Footer></Footer>
     </div>
   );

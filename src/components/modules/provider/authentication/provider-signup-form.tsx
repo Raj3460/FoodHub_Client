@@ -27,8 +27,8 @@ const formSchema = z
   .object({
     name: z.string().min(1, "Owner name is required"),
     email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Minimum length is 6"),
-    confirmPassword: z.string().min(6, "Minimum length is 6"),
+    password: z.string().min(8, "Minimum length is 8"),
+    confirmPassword: z.string().min(8, "Minimum length is 8"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",

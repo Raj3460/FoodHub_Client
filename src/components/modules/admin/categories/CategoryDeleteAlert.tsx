@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Category } from "@/services/admin-dashboard.service";
+import { Category } from "@/services/adminDashboardService/admin-dashboard.service";
 
 interface CategoryDeleteAlertProps {
   open: boolean;

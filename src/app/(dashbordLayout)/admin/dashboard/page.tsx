@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {  adminDashboardService, DashboardStats as StatsType } from "@/services/admin-dashboard.service";
+import {  adminDashboardService, DashboardStats as StatsType } from "@/services/adminDashboardService/admin-dashboard.service";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardStats } from "@/components/layout/Dashboard_layout/dashboard-stats";

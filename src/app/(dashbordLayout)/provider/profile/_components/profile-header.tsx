@@ -79,7 +79,7 @@ export function ProfileHeader({
         </div>
 
         {/* ✅ Logo — absolute, sits on cover bottom, half goes below */}
-        <div className="absolute -bottom-7 left-4 sm:left-6 w-14 h-14 sm:w-20 sm:h-20 rounded-xl border-[3px] border-card bg-card flex items-center justify-center overflow-hidden shadow-md z-10">
+        <div className="absolute -bottom-7 left-4 sm:left-6 w-14 h-14 sm:w-24 sm:h-25 rounded-full border-[3px] border-card bg-card flex items-center justify-center overflow-hidden shadow-md z-10">
           {logo ? (
             <img src={logo} alt="Logo" className="w-full h-full object-cover" />
           ) : (

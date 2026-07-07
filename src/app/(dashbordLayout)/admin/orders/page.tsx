@@ -25,7 +25,7 @@ import {
 import { toast } from "sonner";
 import {
   adminDashboardService, Order, OrderStats,
-} from "@/services/admin-dashboard.service";
+} from "@/services/adminDashboardService/admin-dashboard.service";
 
 // Status badge colors
 const statusConfig: Record<string, { label: string; className: string }> = {

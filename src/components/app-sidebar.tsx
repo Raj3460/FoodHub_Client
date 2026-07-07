@@ -27,6 +27,9 @@ import {
   Store,
   PanelLeftClose,
   PanelLeftOpen,
+  Truck,
+  MapPin,
+  BarChart3,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
@@ -45,9 +48,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 function SidebarCollapseToggle() {
-  const { toggleSidebar, open, isMobile } = useSidebar();
-
-  // if (isMobile) return null;
+  const { toggleSidebar, open } = useSidebar();
 
   return (
     <Button
@@ -72,6 +73,7 @@ function SidebarCollapseToggle() {
 }
 
 const menuItems = {
+  // ✅ Admin Panel
   admin: [
     {
       title: "Platform",
@@ -79,6 +81,7 @@ const menuItems = {
         { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
         { name: "Users", href: "/admin/users", icon: Users },
         { name: "Providers", href: "/admin/providers", icon: Store },
+        { name: "Riders", href: "/admin/riders", icon: Truck },
         { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
       ],
     },
@@ -90,6 +93,8 @@ const menuItems = {
       ],
     },
   ],
+
+  // ✅ Provider Panel
   provider: [
     {
       title: "Management",
@@ -107,23 +112,29 @@ const menuItems = {
       ],
     },
   ],
-  customer: [
+
+  // ✅ Rider Panel — নতুন যোগ হলো
+  rider: [
     {
-      title: "Overview",
+      title: "Deliveries",
       items: [
-        { name: "Dashboard", href: "/customer/dashboard", icon: LayoutDashboard },
-        { name: "My Orders", href: "/customer/orders", icon: ShoppingBag },
-        { name: "Favorites", href: "/customer/favorites", icon: Utensils },
+        { name: "Dashboard", href: "/rider/dashboard", icon: LayoutDashboard },
+        { name: "Active Delivery", href: "/rider/active-delivery", icon: MapPin },
+        { name: "My Deliveries", href: "/rider/deliveries", icon: Truck },
       ],
     },
     {
-      title: "Settings",
+      title: "Account",
       items: [
-        { name: "Profile", href: "/customer/profile", icon: Settings },
-        { name: "Help", href: "/customer/help", icon: HelpCircle },
+        { name: "Stats", href: "/rider/stats", icon: BarChart3 },
+        { name: "Profile", href: "/rider/profile", icon: Settings },
+        { name: "Help", href: "/rider/help", icon: HelpCircle },
       ],
     },
   ],
+
+  // ❌ Customer মুছে দেওয়া হয়েছে
+  // Customer কে Profile থেকে Handle করা হবে
 };
 
 export function AppSidebar() {
@@ -132,7 +143,7 @@ export function AppSidebar() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();
-  const role = (session?.user as any)?.role?.toLowerCase?.() || "customer";
+  const role = (session?.user as any)?.role?.toLowerCase?.() || "";
 
   const handleConfirmLogout = async () => {
     setDialogOpen(false);
@@ -151,18 +162,22 @@ export function AppSidebar() {
     return <div className="w-64 border-r p-4">Loading...</div>;
   }
 
-  const items = menuItems[role as keyof typeof menuItems] || menuItems.customer;
+  // ✅ Customer হলে Sidebar দেখাবে না
+  if (role === "customer" || !menuItems[role as keyof typeof menuItems]) {
+    return null;
+  }
+
+  const items = menuItems[role as keyof typeof menuItems];
 
   return (
     <Sidebar collapsible="icon">
-      {/* Collapsed হলে শুধু toggle icon দেখাবে */}
       <SidebarHeader className="p-2">
         <div className="flex items-center justify-between">
           <Link
             href="/"
             className="text-xl font-bold text-orange-500 hover:opacity-80 transition-opacity group-data-[collapsible=icon]:hidden"
           >
-            FoodHub
+            FoodGhor
           </Link>
           <SidebarCollapseToggle />
         </div>

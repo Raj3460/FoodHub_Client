@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { adminDashboardService, Provider } from "@/services/admin-dashboard.service";
+import { adminDashboardService, Provider } from "@/services/adminDashboardService/admin-dashboard.service";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 

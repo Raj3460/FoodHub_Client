@@ -48,6 +48,8 @@ export function Navbar1({ className }: Navbar1Props) {
       items.push({ title: "Dashboard", url: "/admin/dashboard" });
     } else if (userRole === "PROVIDER") {
       items.push({ title: "Dashboard", url: "/provider/dashboard" });
+    } else if (userRole === "RIDER") {
+      items.push({ title: "Dashboard", url: "/rider/dashboard" });
     }
     // For CUSTOMER or not logged in – no Dashboard link
     return items;
@@ -60,7 +62,7 @@ export function Navbar1({ className }: Navbar1Props) {
         {/* Desktop menu */}
         <div className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
-            <Logo title="FoodHub" />
+            <Logo title="FoodGhor" />
             <DesktopMenu items={menuItems} />
           </div>
           <div className="flex items-center gap-2">

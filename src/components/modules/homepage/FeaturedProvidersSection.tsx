@@ -1,3 +1,6 @@
+//src/components/modules/homepage/FeaturedProvidersSection.tsx
+
+
 "use client";
 
 import { featuredProviderService } from "@/services/providers.service";
@@ -33,7 +36,7 @@ export default function FeaturedProvidersSection() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            All restaurants
+            All Restaurants
           </h2>
            <Link
             href="/meals"
@@ -90,11 +93,7 @@ export default function FeaturedProvidersSection() {
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 rounded-2xl"
                   />
 
-                  {/* Discount badge - top left */}
-                  {/* <div className="absolute top-2 left-2 flex items-center gap-1 bg-orange-500 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">
-                    <span>🏷</span>
-                    {provider.deliveryFee === 0 ? "Free delivery" : "10% ছাড়"}
-                  </div> */}
+                 
 
                   {/* Closed overlay */}
                   {!provider.isOpen && (

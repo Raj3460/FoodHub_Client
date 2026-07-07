@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import ImageUpload from "@/components/ui/ImageUpload";
-import { Category } from "@/services/admin-dashboard.service";
+import { Category } from "@/services/adminDashboardService/admin-dashboard.service";
 
 export interface CategoryFormData {
   name: string;
