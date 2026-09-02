@@ -100,3 +100,11 @@ export type DeliveryHistory = {
     };
   };
 };
+
+export type ProfileUpdateInput = {
+  name?: string;
+  phone?: string;
+  vehicleType?: string;
+  vehicleNumber?: string;
+  area?: string;
+};
